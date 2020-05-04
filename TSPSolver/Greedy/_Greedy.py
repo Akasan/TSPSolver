@@ -13,7 +13,6 @@ class Greedy:
         city_num, distance = load_dataset(dataset_filename)
         self.CITY_NUM = city_num
         self.distance_arr = distance
-
         self.writer = DataWriter()
 
     def search(self):
