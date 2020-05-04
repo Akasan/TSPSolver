@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 from AntColonyOptimization import AntSystem, MaxMinAntSystem
 
 
