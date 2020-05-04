@@ -2,8 +2,8 @@ import numpy as np
 from tqdm import tqdm
 from .src.Logger import *
 from .src.Agent import Agent, AgentRank
-from .src.DataLoader import load_dataset
-from .src.DataWriter import DataWriter
+from ..utils.DataLoader import load_dataset
+from ..utils.DataWriter import DataWriter
 
 
 class AntSystem:
