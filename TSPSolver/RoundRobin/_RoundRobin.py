@@ -19,7 +19,6 @@ class RoundRobin:
         self.writer = DataWriter()
         self.best_distance = np.inf
 
-
     def search(self):
         """ search path"""
         for route in list(permutations([i for i in range(self.CITY_NUM)])):
