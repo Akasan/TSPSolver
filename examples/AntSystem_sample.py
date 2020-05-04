@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-from AntColonyOptimization import AntSystem, MaxMinAntSystem
+from TSPSolver.AntColonyOptimization import AntSystem, MaxMinAntSystem
 
 
 if __name__ == "__main__":
