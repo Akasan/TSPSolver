@@ -1,4 +1,4 @@
 import sys
 import os
 
-__all__ = ["AntCololyOptimization"]
+__all__ = ["AntCololyOptimization", "Greedy"]
