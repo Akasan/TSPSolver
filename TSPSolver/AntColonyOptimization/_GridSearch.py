@@ -27,11 +27,10 @@ class GridSearch:
         self.agent_num_range = self._get_range(agent_num_info)
 
     def search(self, iteration, dataset_filename, mode="AntSystem"):
-        for alpha, beta, rho, agent_num in product(self.alpha_range, self.beta_range, self.rho_range, self.agent_num_range):
+        param_list = product(self.alpha_range, self.beta_range, self.rho_range, self.agent_num_range)
+        for alpha, beta, rho, agent_num in param_list:
             print(f"alpha: {alpha}, beta: {beta}, rho: {rho}, agent: {agent_num}")
-            system = self.__MODE[mode](dataset_filename,
-                                       agent_num,
-                                       alpha, beta, rho)
+            system = self.__MODE[mode](dataset_filename, agent_num, alpha, beta, rho)
             system.search(iteration)
 
     @staticmethod
