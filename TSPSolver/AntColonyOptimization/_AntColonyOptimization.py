@@ -55,28 +55,47 @@ class AntSystem:
         self.distance = distance
         self.distance_inv = 1.0 / distance
         self.best_distance = np.inf
+        self.pre_best_distance = np.inf
 
         self.IS_SAVE = is_save
         if is_save:
             self.writer = DataWriter(save_filename)
 
-    def search(self, iteration):
+    def search(self, iteration, is_judge_convergence=False, convergence_iteration=None):
         """ start searching best route
 
         Arguments:
             iteration {int} -- the number of iterations
+
+        Keyword Arguments:
+            is_judge_convergence {bool} -- whether check convergence or not (default: False)
+            convergence_iteration {int} -- threshold to consider as converged (default: None)
         """
+        if is_judge_convergence and convergence_iteration is None:
+            raise Exception("Please set argument: convergence_iteration")
+
+        converge_cnt = 0
+
         for i in range(iteration):
             self.agent.reset_agent()
             self._generate_route()
             self.agent.find_best()
             self._update_pheromone()
+
             if self.agent.best_distance < self.best_distance:
                 self.best_distance = self.agent.best_distance
+                converge_cnt = 0
+            elif self.best_distance == self.pre_best_distance:
+                converge_cnt += 1
+                if converge_cnt == convergence_iteration:
+                    print("Converted")
+                    break
 
             print(f"{str(i).rjust(len(str(iteration)))} \t{self.best_distance: .3f}")
             if self.IS_SAVE:
                 self.writer.write(self.agent.get_distance_as_arr())
+
+            self.pre_best_distance = self.best_distance
 
         self.writer.save()
 
