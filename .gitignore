@@ -1,3 +1,4 @@
 *.tsp
 __pycache__
 *.csv
+.vscode
