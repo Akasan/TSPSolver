@@ -4,10 +4,26 @@ from pprint import pprint
 
 
 class Greedy:
+    """ Greedy method
+
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cities
+        distance_arr {np.ndarray} -- distance between cities
+        writer {DataWriter} -- writer of saving scores
+        route {dict} -- route which starts from each cities
+
+    Examples:
+    ---------
+        >>> from TSPSolver.Greedy import Greedy
+        >>> greedy = Greedy("kroA100.tsp")
+        >>> greedy.search()
+    """
+
     def __init__(self, dataset_filename):
         """
-
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
         """
         city_num, distance = load_dataset(dataset_filename)

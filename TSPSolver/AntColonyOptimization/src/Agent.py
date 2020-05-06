@@ -1,7 +1,16 @@
 class AgentBase:
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cites
+        distance {float} -- distance
+        route {list[int]} -- list of visit history
+    """
+
     def __init__(self, city_num):
         """
         Arguments:
+        ----------
             city_num {int} -- the number of cities
         """
         self.CITY_NUM = city_num
@@ -9,7 +18,7 @@ class AgentBase:
 
     def reset_values(self):
         """reset all variables"""
-        self.distance = 0
+        self.distance = 0.0
         self.route = []
 
     @property
@@ -20,6 +29,7 @@ class AgentBase:
         """ get agent's current city
 
         Returns:
+        --------
             {int} -- agent's curent city
         """
         return self.route[-1]
@@ -28,6 +38,7 @@ class AgentBase:
         """ go to next city
 
         Arguments:
+        ----------
             city {int} -- next city
         """
         self.route.append(city)
@@ -36,6 +47,7 @@ class AgentBase:
         """ check whether specified city is already visited
 
         Returns:
+        --------
             {bool} -- True when specified city is already visited
         """
         return True if city in self.route else False
@@ -44,7 +56,8 @@ class AgentBase:
         """ yield each city
 
         Yields:
-            {int} -- city
+        -------
+            cyty {int} -- city
         """
         for city in route:
             yield city
@@ -53,8 +66,9 @@ class AgentBase:
         """ yield city pair
 
         Yields:
-            {int} -- base city
-            {int} -- city next to base city
+        -------
+            city1 {int} -- base city
+            city2 {int} -- city next to base city
         """
         for i in range(self.CITY_NUM):
             city1 = self.route[i]
@@ -63,9 +77,19 @@ class AgentBase:
 
 
 class Agent:
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cites
+        distance {float} -- distance
+        route {list[int]} -- list of visit history
+        agent {list[AgentBase]} -- all agents' instance of AgentBase
+    """
+
     def __init__(self, city_num, agent_num):
         """
         Arguments:
+        ----------
             city_num {int} -- the number of cities
             agent_num {int} -- the number of agents
         """
@@ -76,6 +100,7 @@ class Agent:
         """ iterator for getting each agent's instance
 
         Returns:
+        --------
             {iter(AgentBase)} -- each agent's instance
         """
         return iter(self.agent)
@@ -84,10 +109,12 @@ class Agent:
         """ return agent instance spcified index
 
         Arguments:
+        ----------
             idx {int} -- agent id
 
         Returns:
-            [type] -- [description]
+        --------
+            {Agent} -- agent information specifiwd by idx
         """
         return self.agent[idx]
 
@@ -107,6 +134,7 @@ class Agent:
         """ get pair of the best route
 
         Yields:
+        -------
             {int} -- base city
             {int} -- city next to base city
         """
@@ -121,9 +149,20 @@ class Agent:
 
 
 class AgentRank(Agent):
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cites
+        distance {float} -- distance
+        route {list[int]} -- list of visit history
+        agent {list[AgentBase]} -- all agents' instance of AgentBase
+        rank {list[int]} -- each agents' ranking
+    """
+
     def __init__(self, city_num, agent_num):
         """
         Arguments:
+        ----------
             city_num {int} -- the number of cities
             agent_num {int} -- the number of agents
         """
@@ -153,6 +192,7 @@ class AgentRank(Agent):
         """ get agent's ID according to ranking made by get_rank function
 
         Yields:
+        -------
             {list[int]} -- ID list which has same distance
         """
         for k, v in self.rank.item():

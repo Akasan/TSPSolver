@@ -1,14 +1,33 @@
 import numpy as np
 from tqdm import tqdm
-# from .src.Logger import *
-from .src.Agent import Agent, AgentRank
+
 from ..utils.DataLoader import load_dataset
 from ..utils.DataWriter import DataWriter
+# from .src.Logger import *
+from .src.Agent import Agent, AgentRank
 
 
 class AntSystem:
     """ The implementation of the most simple Ant Colony Optimization's method, named Ant System(AS).
     AS is the first method which is proposed first.
+
+    Attributes:
+    -----------
+        ALPHA {float} -- weight of pheromone (default: 1.0)
+        BETA {float} -- weight of hueristics (default: 5.0)
+        RHO {float} -- rate of reducing pheromone (default: 0.98)
+        INIT_PHEROMONE {float} -- initial pheromone concentration (default: 1.0)
+        PHEROMONE_Q {float} --  numerator of calculating pheromone increase(default: 1.0)
+        IS_SAVE {bool} -- wehther save results or not (default: True)
+        CITY_NUM {float} -- the number of cities
+        AGENT_NUM {float} -- the number of agents
+        agent {Agent} -- each agents' information
+        pheromone {np.ndarray} -- pheromone concentration
+        distance {np.ndarray} -- distance between cities
+        distance_inv {np.ndarray} -- inverse of distance
+        best_distance {float} -- the best score
+        pre_best_distance {float} -- the best score of previous iteration
+        writer {DataWriter} -- writer for saving scores
 
     Examples:
     ---------
@@ -29,10 +48,12 @@ class AntSystem:
                  alpha=1.0, beta=5.0, rho=0.5, init_pheromone=1.0, pheromone_q=1.0, is_save=True, save_filename="result.csv"):
         """
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
             agent_num {int} -- the number of agents
 
         Keyword Arguments:
+        ------------------
             alpha {float} -- weight of pheromone (default: 1.0)
             beta {float} -- weight of hueristics (default: 5.0)
             rho {float} -- rate of reducing pheromone (default: 0.98)
@@ -49,25 +70,26 @@ class AntSystem:
         self.RHO = rho
         self.INIT_PHEROMONE = init_pheromone
         self.PHEROMONE_Q = pheromone_q
+        self.IS_SAVE = is_save
+        if is_save:
+            self.writer = DataWriter(save_filename)
 
         self.agent = Agent(self.CITY_NUM, self.AGENT_NUM)
         self.pheromone = np.ones((self.CITY_NUM, self.CITY_NUM)) * init_pheromone
         self.distance = distance
-        self.distance_inv = 1.0 / distance
+        self.distance_inv = 1.0 / pow(distance, self.BETA)
         self.best_distance = np.inf
         self.pre_best_distance = np.inf
-
-        self.IS_SAVE = is_save
-        if is_save:
-            self.writer = DataWriter(save_filename)
 
     def search(self, iteration, is_judge_convergence=False, convergence_iteration=None):
         """ start searching best route
 
         Arguments:
+        ----------
             iteration {int} -- the number of iterations
 
         Keyword Arguments:
+        ------------------
             is_judge_convergence {bool} -- whether check convergence or not (default: False)
             convergence_iteration {int} -- threshold to consider as converged (default: None)
         """
@@ -110,7 +132,7 @@ class AntSystem:
                 prob_arr *= 0
                 for city in range(self.CITY_NUM):
                     if not agent.is_already_visit(city):
-                        prob = pow(self.pheromone[city, agent.current_city], self.ALPHA) * pow(self.distance_inv[city, agent.current_city], self.BETA)
+                        prob = pow(self.pheromone[city, agent.current_city], self.ALPHA) * self.distance_inv[city, agent.current_city]
                         prob_arr[city] = prob
 
                 rand = np.random.rand()
@@ -129,6 +151,7 @@ class AntSystem:
         """ calculate distance
 
         Arguments:
+        ----------
             agent {Agent} -- agent instance which has already route information
         """
         distance = 0
@@ -153,6 +176,26 @@ class AntSystem:
 class MaxMinAntSystem(AntSystem):
     """ The implementation of one of the best method of ACO, named Max-Min Ant System(MMAS)
 
+    Attributes:
+    -----------
+        ALPHA {float} -- weight of pheromone (default: 1.0)
+        BETA {float} -- weight of hueristics (default: 5.0)
+        RHO {float} -- rate of reducing pheromone (default: 0.98)
+        INIT_PHEROMONE {float} -- initial pheromone concentration (default: 1.0)
+        PHEROMONE_Q {float} --  numerator of calculating pheromone increase(default: 1.0)
+        IS_SAVE {bool} -- wehther save results or not (default: True)
+        CITY_NUM {float} -- the number of cities
+        AGENT_NUM {float} -- the number of agents
+        PHEROMONE_MIN_COEF {float} -- coefficient which is used at calculating minimum of pheromone concentration
+        agent {Agent} -- each agents' information
+        pheromone {np.ndarray} -- pheromone concentration
+        distance {np.ndarray} -- distance between cities
+        distance_inv {np.ndarray} -- inverse of distance
+        best_distance {float} -- the best score
+        pre_best_distance {float} -- the best score of previous iteration
+        writer {DataWriter} -- writer for saving scores
+
+
     Examples:
     ---------
         >>> from TSPSolver.AntColonyOptimization import MaxMinAntSystem
@@ -171,10 +214,12 @@ class MaxMinAntSystem(AntSystem):
                  alpha=1.0, beta=5.0, rho=0.5, init_pheromone=1.0, pheromone_q=1.0, p_best=0.05, is_save=True, save_filename="result.csv"):
         """
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
             agent_num {int} -- the number of agents
 
         Keyword Arguments:
+        ------------------
             alpha {float} -- weight of pheromone (default: 1.0)
             beta {float} -- weight of hueristics (default: 5.0)
             rho {float} -- rate of reducing pheromone (default: 0.98)
@@ -205,21 +250,56 @@ class MaxMinAntSystem(AntSystem):
 
 
 class AntSystemElite(AntSystem):
+    """ The implementation of one of the best method of ACO, named Max-Min Ant System(MMAS)
+
+    Attributes:
+    -----------
+        ALPHA {float} -- weight of pheromone (default: 1.0)
+        BETA {float} -- weight of hueristics (default: 5.0)
+        RHO {float} -- rate of reducing pheromone (default: 0.98)
+        INIT_PHEROMONE {float} -- initial pheromone concentration (default: 1.0)
+        PHEROMONE_Q {float} --  numerator of calculating pheromone increase(default: 1.0)
+        IS_SAVE {bool} -- wehther save results or not (default: True)
+        CITY_NUM {float} -- the number of cities
+        AGENT_NUM {float} -- the number of agents
+        PHEROMONE_MIN_COEF {float} -- coefficient which is used at calculating minimum of pheromone concentration
+        agent {AgentRank} -- each agents' information with rank information
+        pheromone {np.ndarray} -- pheromone concentration
+        distance {np.ndarray} -- distance between cities
+        distance_inv {np.ndarray} -- inverse of distance
+        best_distance {float} -- the best score
+        pre_best_distance {float} -- the best score of previous iteration
+        writer {DataWriter} -- writer for saving scores
+
+
+    Examples:
+    ---------
+        >>> from TSPSolver.AntColonyOptimization import AntSystemElute
+        >>> as_elite = AntSystemElite("./kroA100.tsp", 100)             # You can download benchmark problem
+        >>> as_elite.search(5)                                          # The search will be run the specified number of times
+        0      26294.189
+        1      26294.189
+        2      26294.189
+        3      26294.189
+        4      26277.257
+        >>> ant_system.best_distance
+        26277.257
+    """
     def __init__(self, dataset_filename, agent_num,
-                 alpha=1.0, beta=5.0, rho=0.98, init_pheromone=1.0, pheromone_q=1.0, p_best=0.05):
+                 alpha=1.0, beta=5.0, rho=0.5, init_pheromone=1.0, pheromone_q=1.0, is_save=True, save_filename="result.csv"):
         """
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
             agent_num {int} -- the number of agents
 
         Keyword Arguments:
+        ------------------
             alpha {float} -- weight of pheromone (default: 1.0)
             beta {float} -- weight of hueristics (default: 5.0)
             rho {float} -- rate of reducing pheromone (default: 0.98)
             init_pheromone {float} -- initial pheromone concentration (default: 1.0)
             pheromone_q {float} --  numerator of calculating pheromone increase(default: 1.0)
         """
-        super(AntSystemElite, self).__init__(dataset_filename, agent_num,
-                                             alpha, beta, rho, init_pheromone, pheromone_q)
-
+        super(AntSystemElite, self).__init__(dataset_filename, agent_num, alpha, beta, rho, init_pheromone, pheromone_q)
         self.agent = AgentRank(self.CITY_NUM, self.AGENT_NUM)

@@ -7,12 +7,21 @@ class GridSearch:
     """ Grid Search(GS) method for AntColonyOptimization.
     You can use GS for testing parameters combination which is suit for particular problem.
 
+    Attributes:
+    -----------
+        __MODE {dict} -- dictionary for selecting mode (which ACO method will be used)
+        param_grid {dict} -- parameter grid
+        alpha_range {list[float]} -- list of value for ALPHA
+        beta_range {list[float]} -- list of value for BETA
+        rho_range {list[float]} -- list of value for RHO
+        agent_num_range {list[float]} -- list of value for AGENT_NUM
+
     Examples:
     ---------
         >>> param_grid = {"alpha": {"min": 1.0, "max": 3.0, "interval": 0.5},
-                          "beta": {"min": 1.0, "max": 5.0, "interval": 0.5},
-                          "rho": {"min": 0.5, "max": 0.98, "interval": 0.25},
-                          "agent_num": {"value": 100}}
+        ...               "beta": {"min": 1.0, "max": 5.0, "interval": 0.5},
+        ...               "rho": {"min": 0.5, "max": 0.98, "interval": 0.25},
+        ...               "agent_num": {"value": 100}}
         >>> gs = GridSearch(param_grid)
         >>> gs.search(iteration=1, dataset_filename="./kroA100.tsp", mode="AntSystem")
         alpha: 1.0, beta: 1.0, rho: 0.5, agent: 100
@@ -23,16 +32,15 @@ class GridSearch:
         0        68395.391
         alpha: 1.0, beta: 1.5, rho: 0.75, agent: 100
         0        70948.872
-        ...
     """
 
     __MODE = {"AntSystem": AntSystem, "MaxMinAntSystem": MaxMinAntSystem}
 
     def __init__(self, param_grid):
-        """[summary]
-
+        """
         Arguments:
-            param_grid {[type]} -- [description]
+        ----------
+            param_grid {dict} -- parameter grid
         """
         self.param_grid = param_grid
         self._parse_param_grid()
@@ -53,10 +61,12 @@ class GridSearch:
         """ start searching
 
         Arguments:
+        ----------
             iteration {int} -- the number of iteration
             dataset_filename {str} -- dataset file name
 
         Keyword Arguments:
+        ------------------
             mode {str} -- ACO mode (default: "AntSystem")
         """
         param_list = product(self.alpha_range, self.beta_range, self.rho_range, self.agent_num_range)
@@ -67,7 +77,12 @@ class GridSearch:
 
     @staticmethod
     def _get_range(info):
-        """ get range from param_grid"""
+        """ get range from param_grid
+
+        Returns:
+        --------
+            {list[float]} -- value list
+        """
         if "value" in info:
             return [info["value"]]
         else:

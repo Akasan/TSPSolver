@@ -5,9 +5,21 @@ from random import shuffle
 
 
 class InsertionBase:
+    """ Base class for Insertion method.
+
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cities
+        distasnce {np.ndarray} -- distance between cities
+        writer {DataWriter} -- writer for saving scores
+        best_distance {float} -- the best score
+        route {list[int]} -- list of visit history, which is defined in child-class
+    """
+
     def __init__(self, dataset_filename):
         """
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
         """
         city_num, distance = load_dataset(dataset_filename)
@@ -16,20 +28,21 @@ class InsertionBase:
         self.writer = DataWriter()
         self.best_distance = np.inf
 
-    def select_next(self):
+    def _select_city(self):
         """ function for selecting next city (this function is implemented in each Child Class)"""
         pass
 
-    def generate_route(self):
+    def _generate_route(self):
         """ generate route"""
         for i in range(self.CITY_NUM-1):
-            next_city = self.select_next()
-            self.append_city(next_city)
+            next_city = self._select_city()
+            self._append_city(next_city)
 
-    def append_city(self, next_city):
+    def _append_city(self, next_city):
         """ append next city to route
 
         Arguments:
+        ----------
             next_city {int} -- next city
         """
         length = len(self.route)
@@ -42,7 +55,7 @@ class InsertionBase:
             for pos in range(length):
                 route_cp = self.route.copy()
                 route_cp.insert(pos, next_city)
-                distance = self.calculate_distance(route_cp)
+                distance = self._calculate_distance(route_cp)
 
                 if distance < best_distance:
                     best_distance = distance
@@ -50,14 +63,16 @@ class InsertionBase:
 
             self.route = best_route
 
-    def calculate_distance(self, route):
+    def _calculate_distance(self, route):
         """ calculate distance
 
         Arguments:
+        ----------
             route {list[int]} -- route
 
         Returns:
-            {float} -- distance of route
+        --------
+            distance {float} -- distance of route
         """
         distance = 0
         length = len(route)
@@ -70,9 +85,26 @@ class InsertionBase:
 
 
 class RandomInsertion(InsertionBase):
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cities
+        distasnce {np.ndarray} -- distance between cities
+        writer {DataWriter} -- writer for saving scores
+        best_distance {float} -- the best score
+        route {list[int]} -- list of visit history
+
+    Examples:
+    ---------
+        >>> from TSPSolver.Insertion import RandomInsertion
+        >>> ri = RandomInsertion("kroA100.tsp")
+        >>> ri.search(100)
+    """
+
     def __init__(self, dataset_filename):
         """
         Arguments:
+        ----------
             dataset_filename {str} -- dataset file name
         """
         super(RandomInsertion, self).__init__(dataset_filename)
@@ -81,23 +113,25 @@ class RandomInsertion(InsertionBase):
         """ start searching
 
         Arguments:
+        ----------
             iteration {int} -- the number of iterations
         """
         for i in range(iteration):
             self.route = [np.random.randint(0, self.CITY_NUM, 1)[0]]
-            self.generate_route()
+            self._generate_route()
 
-            distance = self.calculate_distance(self.route)
+            distance = self._calculate_distance(self.route)
             if distance < self.best_distance:
                 self.best_distance = distance
 
             print(i, self.best_distance)
 
-    def select_next(self):
+    def _select_city(self):
         """ select next city
 
         Returns:
-            {int} -- id of next city
+        --------
+            city {int} -- id of next city
         """
         city_list = [i for i in range(self.CITY_NUM)]
         shuffle(city_list)
@@ -107,23 +141,40 @@ class RandomInsertion(InsertionBase):
 
 
 class NearestInsertion(InsertionBase):
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cities
+        distasnce {np.ndarray} -- distance between cities
+        writer {DataWriter} -- writer for saving scores
+        best_distance {float} -- the best score
+        route {list[int]} -- list of visit history
+
+    Examples:
+    ---------
+        >>> from TSPSolver.Insertion import NearestInsertion
+        >>> ni = NearestInsertion("kroA100.tsp")
+        >>> ni.search(100)
+    """
+
     def search(self):
         """ start searching"""
         for i in range(self.CITY_NUM):
             self.route = [i]
-            self.generate_route()
+            self._generate_route()
 
-            distance = self.calculate_distance(self.route)
+            distance = self._calculate_distance(self.route)
             if distance < self.best_distance:
                 self.best_distance = distance
 
             print(i, self.best_distance)
 
-    def select_next(self):
+    def _select_city(self):
         """ select the next city
 
         Returns:
-            {int} -- id of next city
+        --------
+            idx {int} -- id of next city
         """
         distance_min = np.inf
         idx = None
@@ -139,11 +190,28 @@ class NearestInsertion(InsertionBase):
 
 
 class FarthestInsertion(NearestInsertion):
-    def select_next(self):
+    """
+    Attributes:
+    -----------
+        CITY_NUM {int} -- the number of cities
+        distasnce {np.ndarray} -- distance between cities
+        writer {DataWriter} -- writer for saving scores
+        best_distance {float} -- the best score
+        route {list[int]} -- list of visit history
+
+    Examples:
+    ---------
+        >>> from TSPSolver.Insertion import FarthestInsertion
+        >>> fi = FarthesttInsertion("kroA100.tsp")
+        >>> fi.search(100)
+    """
+
+    def _select_city(self):
         """ select the next city
 
         Returns:
-            {int} -- id of next city
+        --------
+            idx {int} -- id of next city
         """
         distance_min = 0
         idx = None
